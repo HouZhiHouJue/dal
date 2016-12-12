@@ -23,7 +23,7 @@ public class DalDefaultJpaParser<T> extends AbstractDalParser<T> implements Supp
 	private DalDefaultJpaMapper<T> rowMapper;
 	
 	public DalDefaultJpaParser(Class<T> clazz) throws SQLException {
-		EntityManager<T> manager = new EntityManager<T>(clazz);
+		EntityManager manager = EntityManager.getEntityManager(clazz);
 		this.dataBaseName = manager.getDatabaseName();
 		this.tableName = manager.getTableName();
 		this.columns = manager.getColumnNames();
@@ -36,6 +36,9 @@ public class DalDefaultJpaParser<T> extends AbstractDalParser<T> implements Supp
 		this.identity = identities != null && identities.length == 1 ? identities[0] : null;
 		this.rowMapper = new DalDefaultJpaMapper<T>(clazz);
 		this.sensitiveColumnNames = manager.getSensitiveColumnNames();
+		this.versionColumn = manager.getVersionColumn();
+		this.updatableColumnNames = manager.getUpdatableColumnNames();
+		this.insertableColumnNames = manager.getInsertableColumnNames();
 	}
 	
 	/**
@@ -94,10 +97,6 @@ public class DalDefaultJpaParser<T> extends AbstractDalParser<T> implements Supp
 	@Override
 	public Map<String, ?> getFields(T pojo) {
 		return getFields(getColumnNames(), pojo);
-	}
-	
-	public String[] getSensitiveColumnNames() {
-		return this.sensitiveColumnNames;
 	}
 	
 	private Map<String, ?> getFields(String[] columnNames, T pojo) {
